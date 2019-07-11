@@ -1,22 +1,8 @@
 const CONFIG = require('./config');
-const DYNAMIC_CONFIG = require('./config.json');
-
-const {writeFile} = require('fs');
-const path = require('path');
 const fetch = require('node-fetch');
 
-async function writeToJson(filename, data) {
-	await writeFile(
-		path.resolve(__dirname, filename),
-		JSON.stringify(data, null, '  '),
-		'utf8',
-		err => {
-			if (err) {
-				throw(err);
-			}
-		}
-	);
-}
+const GITHUB_CONFIG = CONFIG.github;
+const WAKATIME_CONFIG = CONFIG.wakatime;
 
 function getFetchOptions(method, authString, requestBody = {}) {
 	const base64AuthString = Buffer.from(authString).toString('base64');
@@ -34,8 +20,8 @@ function getFetchOptions(method, authString, requestBody = {}) {
 }
 
 async function getGistId() {
-	if (CONFIG.gist_id !== '') {
-		return CONFIG.gist_id;
+	if (GITHUB_CONFIG.gist_id) {
+		return GITHUB_CONFIG.gist_id;
 	}
 
 	const gistOptions = {
@@ -49,18 +35,21 @@ async function getGistId() {
 	};
 
 	const newGistData = await fetch(
-		CONFIG.github.base_url,
+		GITHUB_CONFIG.base_url,
 		getFetchOptions(
 			'POST',
-			`${CONFIG.github.username}:${CONFIG.github.password}`,
+			`${GITHUB_CONFIG.username}:${GITHUB_CONFIG.password}`,
 			gistOptions
 		)
 	).then(res => res.json());
 
 	const gistId = newGistData.id;
 
-	DYNAMIC_CONFIG.gist_id = gistId;
-	await writeToJson('config.json', DYNAMIC_CONFIG);
+	console.info(`
+Environment variable "GIST_ID" was not defined.
+A new Gist has been created with the ID "${gistId}".
+Save this as "GIST_ID" environment variable.
+`);
 
 	return gistId;
 }
