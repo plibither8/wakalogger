@@ -80,6 +80,4 @@ function nextDate(date) {
 (async () => {
 	let id = await getGistId();
 	console.log(id)
-})()
-
-// gists.all().then(res => res.pages.length).then(console.log)
+})();
