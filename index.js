@@ -4,19 +4,21 @@ const fetch = require('node-fetch');
 const GITHUB_CONFIG = CONFIG.github;
 const WAKATIME_CONFIG = CONFIG.wakatime;
 
-function getFetchOptions(method, authString, requestBody = {}) {
+function getFetchRequest(method, authString, requestBody) {
 	const base64AuthString = Buffer.from(authString).toString('base64');
-
-	return {
+	const request = {
 		method,
 		mode: 'cors',
 		cache: 'no-cache',
 		headers: {
 			'Content-Type': 'application/json',
 			'Authorization': 'Basic ' + base64AuthString
-		},
-		body: JSON.stringify(requestBody)
-	}
+		}
+	};
+
+	if (requestBody) request.body = requestBody;
+
+	return request;
 }
 
 async function getGistId() {
@@ -36,7 +38,7 @@ async function getGistId() {
 
 	const newGistData = await fetch(
 		GITHUB_CONFIG.base_url,
-		getFetchOptions(
+		getFetchRequest(
 			'POST',
 			`${GITHUB_CONFIG.username}:${GITHUB_CONFIG.password}`,
 			gistOptions
@@ -55,7 +57,12 @@ Save this as "GIST_ID" environment variable.
 }
 
 async function getDateDurations(date) {
-	
+	const durationData = await fetch(
+		`${WAKATIME_CONFIG.base_url}/${WAKATIME_CONFIG.username}/durations?date=${date}`,
+		getFetchRequest('GET', WAKATIME_CONFIG.api_key)
+	).then(res => res.json());
+
+	return durationData.data;
 }
 
 function nextDate(date) {
@@ -78,6 +85,6 @@ function nextDate(date) {
 }
 
 (async () => {
-	let id = await getGistId();
-	console.log(id)
+	// let id = await getGistId();
+	console.log(await getDateDurations('2019-07-05'))
 })();
