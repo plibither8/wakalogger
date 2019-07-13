@@ -88,7 +88,11 @@ async function initiate() {
 	}
 
 	allData.startingDate = todayDate;
-	return await writeToGist(gistId, allData);
+
+	const result = await writeToGist(gistId, allData);
+
+	console.log(result ? 'Success!' : 'Failed!')
+	return result;
 }
 
 // UTILS:
