@@ -228,8 +228,7 @@ async function writeToGist(id, dataContent) {
  * @param {Date} date - Date object
  */
 function dateFormatter(date) {
-	const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-	return formattedDate;
+	return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
 /**
