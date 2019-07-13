@@ -1,7 +1,9 @@
 # 🕒 wakalogger
 
-> 🕒 Log Wakatime activites and durations to a private Gist
+> 🕒 Log your daily WakaTime coding activity to a secret Gist.
+
+**Documentation WIP**
 
 ## License
 
-MIT
+[MIT](LICENSE)
