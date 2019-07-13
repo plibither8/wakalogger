@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 /**
  * CONFIGURATION:
- * 
+ *
  * GitHub:
  * - Using password since GH Token is not being
  *   accepted by Basic Authentication
@@ -26,14 +26,70 @@ const WAKATIME = {
  * @returns {Object} Date duration data from the API
  */
 async function getDateDurationsData(date) {
-	const durationData = await fetch(
+	const response = await fetch(
 		`${WAKATIME.base_url}/${WAKATIME.username}/durations?date=${date}`,
 		getFetchRequest('GET', WAKATIME.api_key)
 	).then(res => res.json());
 
-	return durationData.data;
+	return response.data;
 }
 
+/**
+ * Send each entry to its projectName object in allData
+ * @param {Object} allData - Collected data
+ * @param {Object} dateDurationsData - Current data being worked on
+ */
+async function parseDurationData(allData, dateDurationsData) {
+	for (const duration of dateDurationsData) {
+		const projectName = duration.project;
+		const entry = {
+			createdAt: duration.created_at,
+			duration: duration.duration,
+			time: duration.time
+		};
+
+		if (allData.projects[projectName]) {
+			allData.projects[projectName].push(entry);
+		} else {
+			allData.projects[projectName] = [entry];
+		}
+	}
+}
+
+/**
+ * Main initiator and handler of date loop
+ */
+async function initiate() {
+	const gistId = await getGistId();
+	const allData = await getGistContent(gistId);
+
+	// Initialise 'startingDate' property if not present
+	if (!allData.startingDate) {
+		allData.startingDate = getStartingDate();
+	}
+
+	// Initialise 'projects' property if not present
+	if (!allData.projects) {
+		allData.projects = {};
+	}
+
+	const todayDate = dateFormatter(new Date());
+	let bufferDate = allData.startingDate;
+
+	while (bufferDate !== todayDate) {
+		const dateDurationsData = await getDateDurationsData(bufferDate);
+		bufferDate = nextDate(bufferDate);
+
+		if (!dateDurationsData) {
+			continue;
+		}
+
+		parseDurationData(allData, dateDurationsData);
+	}
+
+	allData.startingDate = todayDate;
+	return await writeToGist(gistId, allData);
+}
 
 // UTILS:
 /**
@@ -41,7 +97,7 @@ async function getDateDurationsData(date) {
  * @param {String} method - Request method (GET, POST, etc.)
  * @param {String} authString - String to be base64 encoded for Basic Authentication
  * @param {Object} requestBody - (Optional) Options to be sent via POST method
- * 
+ *
  * @returns {Object} Request object
  */
 function getFetchRequest(method, authString, requestBody) {
@@ -59,7 +115,7 @@ function getFetchRequest(method, authString, requestBody) {
 
 	// If a request body has been supplied (when method is POST)
 	// then add that to request object
-	if (requestBody) request.body = requestBody;
+	if (requestBody) request.body = JSON.stringify(requestBody);
 
 	return request;
 }
@@ -77,13 +133,19 @@ async function getGistId() {
 		return GITHUB.gist_id;
 	}
 
+	// Starting template
+	const fileContent = {
+		startDate: getStartingDate(),
+		projects: {}
+	};
+
 	// If it is not found, create a Gist and print the ID of it
 	const gistOptions = {
 		description: 'WakaLogger logs',
 		public: false,
 		files: {
 			'wakalogger.json': {
-				content: '{}' // Can't be left empty
+				content: JSON.stringify(fileContent, null, '  ')
 			}
 		}
 	};
@@ -109,6 +171,77 @@ Save this as "GIST_ID" environment variable.
 }
 
 /**
+ * Get parsed content of gist
+ * @param {String} id - ID of Gist
+ * @returns {Object} - Parsed content
+ */
+async function getGistContent(id) {
+	const response = await fetch(
+		`${GITHUB.base_url}/${id}`,
+		getFetchRequest('GET', `${GITHUB.username}:${GITHUB.password}`)
+	).then(res => res.json());
+
+	const {files} = response;
+	const targetFile = files[Object.keys(files)[0]]; // first file that occurs
+	const parsedContent = JSON.parse(targetFile.content);
+
+	return parsedContent;
+}
+
+/**
+ * Write to the private Gist
+ * @param {String} id - Gist ID
+ * @param {Object} content - Final data that needs to be uploaded
+ * @returns {Boolean} - Success/Fail
+ */
+async function writeToGist(id, dataContent) {
+	// If it is not found, create a Gist and print the ID of it
+	const gistOptions = {
+		description: 'WakaLogger logs',
+		files: {
+			'wakalogger.json': {
+				// Stringify with 2 spaces indentation for pretty-print
+				content: JSON.stringify(dataContent, null, '  ')
+			}
+		}
+	};
+
+	// WRITE!
+	const response = await fetch(
+		`${GITHUB.base_url}/${id}`,
+		getFetchRequest(
+			'PATCH',
+			`${GITHUB.username}:${GITHUB.password}`,
+			gistOptions
+		)
+	).then(res => res.status === 200);
+
+	return response;
+}
+
+/**
+ * Return date string in the yyyy-mm-dd format
+ * @param {Date} date - Date object
+ */
+function dateFormatter(date) {
+	const formattedDate = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+	return formattedDate;
+}
+
+/**
+ * Get formatted date of 15 days back
+ * ...just to be safe (WakaTime keeps 14 days of records)
+ */
+function getStartingDate() {
+	const today = new Date();
+	const todayMilliseconds = today.getTime();
+	const fifteenDaysInMilliseconds = 15 * 24 * 60 * 60 * 1000; 
+	const fifteenDaysBack = new Date(todayMilliseconds - fifteenDaysInMilliseconds);
+
+	return dateFormatter(fifteenDaysBack);
+}
+
+/**
  * Calculate and return the next date in the given format
  * @param {String} date - Date in the format yyyy-mm-dd
  * @returns {String} - next date in yyyy-mm-dd
@@ -129,10 +262,9 @@ function nextDate(date) {
 		year++;
 	}
 
-	return [year, month, day].map(num => num.toString().padStart(2, '0')).join('-');
+	return [year, month, day].join('-');
 }
 
 (async () => {
-	// let id = await getGistId();
-	console.log(await getDateDurations('2019-07-05'))
+	await initiate()
 })();
