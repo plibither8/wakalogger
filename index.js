@@ -91,7 +91,7 @@ async function initiate() {
 
 	const result = await writeToGist(gistId, allData);
 
-	console.log(result ? 'Success!' : 'Failed!')
+	console.info(result ? 'Success!' : 'Failed!');
 	return result;
 }
 
