@@ -1,6 +1,5 @@
 {
 	"private": true,
-	"scripts": {},
 	"dependencies": {
 		"node-fetch": "^2.6.0"
 	}
