@@ -1,5 +1,7 @@
 # 🕒 WakaLogger
 
+[![Build Status](https://travis-ci.org/plibither8/wakalogger.svg?branch=master)](https://travis-ci.org/plibither8/wakalogger)
+
 > Log your daily WakaTime coding activity to a secret Gist.
 
 The script allows you to backup/export/log your daily [WakaTime](https://wakatime.com) coding activity (durations) every day, so that you don't lose any day's data. To automate the process of running the script every day, one can make use of cron jobs offered by CIs - in this case, [Travis CI](https://travis-ci.org).
