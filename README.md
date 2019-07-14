@@ -2,9 +2,7 @@
 
 > Log your daily WakaTime coding activity to a secret Gist.
 
-The script allows you to backup/export/log you daily coding activity (durations) every day, so that you don't lose any day's data.
-
-To automate the process of running the script every day, one can make use of cron jobs offered by CIs - in this case, [Travis CI](https://travis-ci.org).
+The script allows you to backup/export/log your daily [WakaTime](https://wakatime.com) coding activity (durations) every day, so that you don't lose any day's data. To automate the process of running the script every day, one can make use of cron jobs offered by CIs - in this case, [Travis CI](https://travis-ci.org).
 
 ## Setup
 
@@ -20,7 +18,7 @@ If the `GIST_ID` variable is not found/undefined, WakaLogger will create a secre
 
 The [`.travis.yml`](.travis.yml) file contains the required commands that Travis will execute each time it *builds* the repository.
 
-1. Fork this repository
+1. Fork your own copy of this repository
 
 1. Set up Travis on your forked repository by going to [https://travis-ci.org](https://travis-ci.org)
 
@@ -36,14 +34,14 @@ The [`.travis.yml`](.travis.yml) file contains the required commands that Travis
     WAKATIME_API_KEY
     ```
 
-1. Create a cron job (in the repo settings itself): "Branch" shall be `master`, and the ideal frequency is either "daily" or "weekly"
+1. Create a cron job (in the repo settings itself): "Branch" shall be `master`, and the ideal frequency should either be "daily" or "weekly"
 
 ### Local
 
 1. Clone this repo:
 
     ```sh
-    git clone https://github.com/plibither8/  wakalogger
+    git clone https://github.com/plibither8/wakalogger
     ```
 
 1. Install packages:
