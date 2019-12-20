@@ -1,10 +1,10 @@
 # 🕒 WakaLogger
 
-[![Build Status](https://travis-ci.org/plibither8/wakalogger.svg?branch=master)](https://travis-ci.org/plibither8/wakalogger)
+![Build Status](https://github.com/plibither8/wakalogger/workflows/main.yml/badge.svg)
 
 > Log your daily WakaTime coding activity to a secret Gist.
 
-The script allows you to backup/export/log your daily [WakaTime](https://wakatime.com) coding activity (durations) every day, so that you don't lose any day's data. To automate the process of running the script every day, one can make use of cron jobs offered by CIs - in this case, [Travis CI](https://travis-ci.org).
+The script allows you to backup/export/log your daily [WakaTime](https://wakatime.com) coding activity (durations) every day, so that you don't lose any day's data. To automate the process of running the script every day, one can make use of cron jobs offered by CIs - in this case, GitHub Actions.
 
 ## Setup
 
@@ -17,6 +17,8 @@ You must first create a secret Gist that shall serve as the log file. Don't worr
 If the `GIST_ID` variable is not found/undefined, WakaLogger will create a secret Gist for you and tell you the ID. Note it and define the environment variable.
 
 ### CI (Travis)
+
+> Note: Even though the following instructions _will_ work, this repository now uses GitHub Actions to perform the cronjobs.
 
 The [`.travis.yml`](.travis.yml) file contains the required commands that Travis will execute each time it *builds* the repository.
 
