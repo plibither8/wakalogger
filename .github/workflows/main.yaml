@@ -9,22 +9,21 @@ on:
 
 jobs:
   bot:
+    runs-on: ubuntu-latest
     steps:
-      runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@v1
+    - uses: actions/checkout@v1
 
-      - name: "Install Node"
-        uses: actions/setup-node@v1
+    - name: "Install Node"
+      uses: actions/setup-node@v1
 
-      - name: "Install NPM dependancies"
-        run: npm install
+    - name: "Install NPM dependancies"
+      run: npm install
 
-      - name: "Run code"
-        run: node index.js
-        env:
-          GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
-          GITHUB_PASSWORD: ${{ secrets.GITHUB_PASSWORD }}
-          GIST_ID: ${{ secrets.GIST_ID }}
-          WAKATIME_USERNAME: ${{ secrets.WAKATIME_USERNAME }}
-          WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
+    - name: "Run code"
+      run: node index.js
+      env:
+        GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME }}
+        GITHUB_PASSWORD: ${{ secrets.GITHUB_PASSWORD }}
+        GIST_ID: ${{ secrets.GIST_ID }}
+        WAKATIME_USERNAME: ${{ secrets.WAKATIME_USERNAME }}
+        WAKATIME_API_KEY: ${{ secrets.WAKATIME_API_KEY }}
