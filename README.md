@@ -1,6 +1,6 @@
 # 🕒 WakaLogger
 
-![Build Status](https://github.com/plibither8/wakalogger/workflows/main.yml/badge.svg)
+![Build Status](https://github.com/plibither8/wakalogger/workflows/WakaLogger%20Bot/badge.svg)
 
 > Log your daily WakaTime coding activity to a secret Gist.
 
